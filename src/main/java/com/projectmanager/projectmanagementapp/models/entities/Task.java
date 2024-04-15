@@ -25,6 +25,10 @@ public class Task extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime deadline;
 
+    @ManyToOne
+    @JoinColumn(name = "task_admin_id", referencedColumnName = "id")
+    private User taskAdmin;
+
 
     @ManyToMany
     @JoinTable(
