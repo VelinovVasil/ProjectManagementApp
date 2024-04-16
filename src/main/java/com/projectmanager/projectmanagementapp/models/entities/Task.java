@@ -29,12 +29,16 @@ public class Task extends BaseEntity {
     @JoinColumn(name = "task_admin_id", referencedColumnName = "id")
     private User taskAdmin;
 
+    @OneToMany(mappedBy = "task")
+    private Set<Submission> submissions;
+
 
     @ManyToMany
     @JoinTable(
             name = "tasks_users",
             joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            inverseJoinColumns = @JoinColumn(name = "user_id"
+            )
     )
     private Set<User> users;
 }

@@ -1,9 +1,6 @@
 package com.projectmanager.projectmanagementapp.models.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,5 +23,8 @@ public class User extends BaseEntity {
 
     @ManyToMany(mappedBy = "users")
     private Set<Task> tasks;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Submission> submissions;
 
 }

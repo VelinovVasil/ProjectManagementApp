@@ -25,14 +25,8 @@ public class UserServiceImpl implements UserService {
     private final TaskRepository taskRepository;
 
     private final ModelMapper modelMapper;
-/*
-* controller
- * mapper
- * facade
-* service 1
-* service 2
-* repository
-* */
+
+
     @Override
     public UserDTO createUser(CreateUserDTO createUserDTO) {
 
@@ -101,28 +95,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String assignTask(Long userId, Long taskId) {
-
         Optional<User> optionalUser = this.userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-//            return "User not found";
-        }
-
         Optional<Task> optionalTask = this.taskRepository.findById(taskId);
-        if (optionalTask.isEmpty()) {
-//            return "Task not found";
+
+
+        if (optionalUser.isPresent() && optionalTask.isPresent()) {
+            User user = optionalUser.get();
+            Task task = optionalTask.get();
+
+
+            if (!user.getTasks().contains(task)) {
+
+//                user.getTasks().add(task);
+                task.getUsers().add(user);
+
+//                this.userRepository.saveAndFlush(user);
+                this.taskRepository.saveAndFlush(task);
+                return "Task assigned successfully";
+
+            } else {
+                return "Task is already assigned to the user";
+            }
+        } else {
+            return "User or task not found";
         }
-
-        User user = optionalUser.get();
-        Task task = optionalTask.get();
-
-        if(user.getTasks().add(task)) {
-            this.userRepository.saveAndFlush(user);
-            return "Task assigned successfully";
-        }
-
-        return null;
     }
-
     @Override
     public String unassignTask(Long userId, Long taskId) {
 
@@ -139,9 +136,9 @@ public class UserServiceImpl implements UserService {
         User user = optionalUser.get();
         Task task = optionalTask.get();
 
-        if(user.getTasks().remove(task)) {
-            this.userRepository.saveAndFlush(user);
-            return "Task assigned successfully";
+        if(task.getUsers().remove(user)) {
+            this.taskRepository.saveAndFlush(task);
+            return "Task unassigned successfully";
         }
 
         return null;
