@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 // TODO: Add error handling
@@ -27,7 +29,7 @@ public class TaskServiceImpl implements TaskService {
     private ModelMapper modelMapper;
 
     @Override
-    public String createTask(CreateTaskDTO createTaskDTO) {
+    public TaskReturnDTO createTask(CreateTaskDTO createTaskDTO) {
 
         Optional<User> optionalUser = this.userRepository.findById(createTaskDTO.getTaskAdmin());
         if (optionalUser.isEmpty()) {
@@ -35,11 +37,20 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task task = this.modelMapper.map(createTaskDTO, Task.class);
+        task.setAssignedOn(LocalDateTime.now());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        task.setDeadline(LocalDateTime.parse(createTaskDTO.getDeadline(), formatter));
+
         task.setTaskAdmin(optionalUser.get());
 
         this.taskRepository.saveAndFlush(task);
 
-        return "Task created successfully";
+        TaskReturnDTO taskReturnDTO = this.modelMapper.map(task, TaskReturnDTO.class);
+        taskReturnDTO.setTaskAdminId(createTaskDTO.getTaskAdmin());
+
+        return taskReturnDTO;
     }
 
     @Override
@@ -56,9 +67,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public String updateTask(UpdateTaskDTO updateTaskDTO) {
+    public String updateTask(Long taskId, UpdateTaskDTO updateTaskDTO) {
 
-        // TODO
+        // TODO: Add method implementation
 
         return null;
     }

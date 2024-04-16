@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface TaskService {
 
-    String createTask(CreateTaskDTO createTaskDTO);
+    TaskReturnDTO createTask(CreateTaskDTO createTaskDTO);
 
     String deleteTask(Long taskId);
 
-    String updateTask(UpdateTaskDTO updateTaskDTO);
+    String updateTask(Long taskId, UpdateTaskDTO updateTaskDTO);
 
     TaskReturnDTO getTaskById(Long taskId);
 

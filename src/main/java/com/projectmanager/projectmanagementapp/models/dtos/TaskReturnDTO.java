@@ -20,7 +20,7 @@ public class TaskReturnDTO {
 
     private LocalDateTime deadline;
 
-    private User taskAdmin;
+    private Long taskAdminId;
 
     private Set<Long> users;
 

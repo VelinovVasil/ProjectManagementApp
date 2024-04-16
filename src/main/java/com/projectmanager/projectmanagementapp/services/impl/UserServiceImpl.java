@@ -50,7 +50,9 @@ public class UserServiceImpl implements UserService {
 
         this.userRepository.saveAndFlush(user);
 
-        return String.format("User %s, %s created successfully", user.getUsername(), user.getEmail());
+        UserDTO dto = this.modelMapper.map(user, UserDTO.class);
+
+        return dto;
     }
 
     @Override
@@ -68,9 +70,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUserInfo(UpdateUserDTO updateUserDTO) {
-        Optional<User> userByUsername = this.userRepository.findUserByUsername(updateUserDTO.getUsername());
-        if (userByUsername.isPresent()) {
+    public String updateUserInfo(Long userId, UpdateUserDTO updateUserDTO) {
+
+        Optional<User> optionalUser = this.userRepository.findById(userId);
+
+        if (this.userRepository.findUserByUsername(updateUserDTO.getUsername()).isPresent()) {
 //            return "Username already exists";
         }
 
@@ -79,7 +83,11 @@ public class UserServiceImpl implements UserService {
 //            return "Email already exists";
         }
 
-        User user = this.modelMapper.map(updateUserDTO, User.class);
+        User user = optionalUser.get();
+
+        user.setUsername(updateUserDTO.getUsername());
+        user.setEmail(updateUserDTO.getEmail());
+        user.setPassword(updateUserDTO.getPassword());
 
         this.userRepository.saveAndFlush(user);
 

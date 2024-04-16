@@ -13,7 +13,7 @@ public interface UserService {
 
     String deleteUser(Long userId);
 
-    String updateUserInfo(UpdateUserDTO updateUserDTO);
+    String updateUserInfo(Long userId, UpdateUserDTO updateUserDTO);
 
     Optional<User> getUserById(Long userId);
 
