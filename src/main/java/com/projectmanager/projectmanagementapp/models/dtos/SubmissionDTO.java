@@ -13,7 +13,7 @@ public class SubmissionDTO {
 
     private LocalDateTime submissionDate;
 
-    private Long user;
+    private Long userId;
 
-    private Long task;
+    private Long taskId;
 }

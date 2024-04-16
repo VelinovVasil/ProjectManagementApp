@@ -9,5 +9,5 @@ public interface SubmissionService {
 
     String deleteSubmission(Long submissionId);
 
-
+    SubmissionDTO getSubmissionById(Long submissionId);
 }

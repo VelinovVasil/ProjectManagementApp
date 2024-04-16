@@ -37,7 +37,11 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         this.submissionRepository.saveAndFlush(submission);
 
-        return modelMapper.map(submission, SubmissionDTO.class);
+        SubmissionDTO dto = modelMapper.map(submission, SubmissionDTO.class);
+        dto.setTaskId(taskId);
+        dto.setUserId(userId);
+
+        return dto;
     }
 
     @Override
@@ -46,5 +50,16 @@ public class SubmissionServiceImpl implements SubmissionService {
         this.submissionRepository.deleteById(submissionId);
 
         return "Successfully deleted submission";
+    }
+
+    @Override
+    public SubmissionDTO getSubmissionById(Long submissionId) {
+
+        Submission submission = this.submissionRepository.findById(submissionId).orElse(null);
+        SubmissionDTO dto = this.modelMapper.map(submission, SubmissionDTO.class);
+        dto.setUserId(submission.getUser().getId());
+        dto.setTaskId(submission.getTask().getId());
+
+        return dto;
     }
 }
