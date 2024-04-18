@@ -1,5 +1,8 @@
 package com.projectmanager.projectmanagementapp.services.impl;
 
+import com.projectmanager.projectmanagementapp.handler.exceptions.EntityNotFoundException;
+import com.projectmanager.projectmanagementapp.handler.exceptions.TaskAlreadyAssignedToUserException;
+import com.projectmanager.projectmanagementapp.handler.exceptions.UserAlreadyExistsException;
 import com.projectmanager.projectmanagementapp.models.dtos.CreateUserDTO;
 import com.projectmanager.projectmanagementapp.models.dtos.UpdateUserDTO;
 import com.projectmanager.projectmanagementapp.models.dtos.UserDTO;
@@ -12,9 +15,9 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
-// TODO: Add error handling
+import static com.projectmanager.projectmanagementapp.util.RepositoryUtil.findById;
+
 
 @Service
 @AllArgsConstructor
@@ -30,14 +33,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO createUser(CreateUserDTO createUserDTO) {
 
-        Optional<User> userByUsername = this.userRepository.findUserByUsername(createUserDTO.getUsername());
-        if (userByUsername.isPresent()) {
-//            return "Username already exists";
-        }
-
-        Optional<User> userByEmail = this.userRepository.findUserByEmail(createUserDTO.getEmail());
-        if (userByEmail.isPresent()) {
-//            return "Email already exists";
+        if (this.userRepository.existsByEmailOrUsername(createUserDTO.getEmail(), createUserDTO.getUsername())) {
+            throw new UserAlreadyExistsException("User with email or username already exists");
         }
 
         User user = this.modelMapper.map(createUserDTO, User.class);
@@ -52,12 +49,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteUser(Long userId) {
 
-        Optional<User> optional = this.userRepository.findById(userId);
-
-        if (optional.isEmpty()) {
-//            return String.format("User with id %s not found", userId);
-        }
-
         this.userRepository.deleteById(userId);
 
         return "User deleted successfully";
@@ -66,18 +57,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateUserInfo(Long userId, UpdateUserDTO updateUserDTO) {
 
-        Optional<User> optionalUser = this.userRepository.findById(userId);
+        User user = findById(this.userRepository, userId);
 
-        if (this.userRepository.findUserByUsername(updateUserDTO.getUsername()).isPresent()) {
-//            return "Username already exists";
+        if (this.userRepository.existsByEmailOrUsername(updateUserDTO.getEmail(), updateUserDTO.getUsername())) {
+            throw new UserAlreadyExistsException("User with email or username already exists");
         }
-
-        Optional<User> userByEmail = this.userRepository.findUserByEmail(updateUserDTO.getEmail());
-        if (userByEmail.isPresent()) {
-//            return "Email already exists";
-        }
-
-        User user = optionalUser.get();
 
         user.setUsername(updateUserDTO.getUsername());
         user.setEmail(updateUserDTO.getEmail());
@@ -89,19 +73,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return this.userRepository.findById(userId);
+    public User getUserById(Long userId) {
+        return findById(this.userRepository, userId);
     }
 
     @Override
     public String assignTask(Long userId, Long taskId) {
-        Optional<User> optionalUser = this.userRepository.findById(userId);
-        Optional<Task> optionalTask = this.taskRepository.findById(taskId);
 
-
-        if (optionalUser.isPresent() && optionalTask.isPresent()) {
-            User user = optionalUser.get();
-            Task task = optionalTask.get();
+        User user = findById(this.userRepository, userId);
+        Task task = findById(this.taskRepository, taskId);
 
 
             if (!user.getTasks().contains(task)) {
@@ -114,33 +94,20 @@ public class UserServiceImpl implements UserService {
                 return "Task assigned successfully";
 
             } else {
-                return "Task is already assigned to the user";
+                throw new TaskAlreadyAssignedToUserException("Task is already assigned to the user");
             }
-        } else {
-            return "User or task not found";
-        }
+
     }
     @Override
     public String unassignTask(Long userId, Long taskId) {
 
-        Optional<User> optionalUser = this.userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-//            return "User not found";
-        }
+        User user = findById(this.userRepository, userId);
+        Task task = findById(this.taskRepository, taskId);
 
-        Optional<Task> optionalTask = this.taskRepository.findById(taskId);
-        if (optionalTask.isEmpty()) {
-//            return "Task not found";
-        }
+        task.getUsers().remove(user);
 
-        User user = optionalUser.get();
-        Task task = optionalTask.get();
+        this.taskRepository.saveAndFlush(task);
 
-        if(task.getUsers().remove(user)) {
-            this.taskRepository.saveAndFlush(task);
-            return "Task unassigned successfully";
-        }
-
-        return null;
+        return "Task unassigned successfully";
     }
 }

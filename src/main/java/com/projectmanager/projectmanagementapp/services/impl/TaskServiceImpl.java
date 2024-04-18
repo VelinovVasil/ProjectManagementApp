@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import static com.projectmanager.projectmanagementapp.util.RepositoryUtil.findById;
+
 // TODO: Add error handling
 
 @Service
@@ -31,10 +33,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskReturnDTO createTask(CreateTaskDTO createTaskDTO) {
 
-        Optional<User> optionalUser = this.userRepository.findById(createTaskDTO.getTaskAdmin());
-        if (optionalUser.isEmpty()) {
-//            return "User does not exist";
-        }
+        User user = findById(this.userRepository, createTaskDTO.getTaskAdmin());
 
         Task task = this.modelMapper.map(createTaskDTO, Task.class);
         task.setAssignedOn(LocalDateTime.now());
@@ -43,7 +42,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setDeadline(LocalDateTime.parse(createTaskDTO.getDeadline(), formatter));
 
-        task.setTaskAdmin(optionalUser.get());
+        task.setTaskAdmin(user);
 
         this.taskRepository.saveAndFlush(task);
 
@@ -55,11 +54,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public String deleteTask(Long taskId) {
-        Optional<Task> task = this.taskRepository.findById(taskId);
 
-        if (task.isEmpty()) {
-//            return "Task does not exist";
-        }
+        Task task = findById(this.taskRepository, taskId);
 
         this.taskRepository.deleteById(taskId);
 
@@ -77,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskReturnDTO getTaskById(Long taskId) {
 
-        Task optionalTask = this.taskRepository.findById(taskId).orElse(null);
+        Task optionalTask = findById(this.taskRepository, taskId);
 
         return this.modelMapper.map(optionalTask, TaskReturnDTO.class);
      }

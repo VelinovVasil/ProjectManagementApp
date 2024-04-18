@@ -25,5 +25,4 @@ public class Submission extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "task_id", referencedColumnName = "id")
     private Task task;
-
 }

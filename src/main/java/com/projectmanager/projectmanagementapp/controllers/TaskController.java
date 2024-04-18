@@ -21,18 +21,17 @@ public class TaskController {
         return new ResponseEntity<>(this.taskService.createTask(createTaskDTO), HttpStatus.OK);
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) {
         return new ResponseEntity<>(this.taskService.deleteTask(id), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskReturnDTO> getTaskById(@PathVariable Long id) {
-        return new ResponseEntity<>(this.taskService.getTaskById(id), HttpStatus.OK);
-
+        return ResponseEntity.ok(this.taskService.getTaskById(id));
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<String> updateTask(@PathVariable Long id, @RequestBody UpdateTaskDTO updateTaskDTO) {
         return new ResponseEntity<>(this.taskService.updateTask(id, updateTaskDTO), HttpStatus.OK);
     }

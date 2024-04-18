@@ -3,6 +3,8 @@ package com.projectmanager.projectmanagementapp.services.impl;
 import com.projectmanager.projectmanagementapp.models.dtos.CreateSubmissionDTO;
 import com.projectmanager.projectmanagementapp.models.dtos.SubmissionDTO;
 import com.projectmanager.projectmanagementapp.models.entities.Submission;
+import com.projectmanager.projectmanagementapp.models.entities.Task;
+import com.projectmanager.projectmanagementapp.models.entities.User;
 import com.projectmanager.projectmanagementapp.repositories.SubmissionRepository;
 import com.projectmanager.projectmanagementapp.repositories.TaskRepository;
 import com.projectmanager.projectmanagementapp.repositories.UserRepository;
@@ -12,6 +14,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static com.projectmanager.projectmanagementapp.util.RepositoryUtil.findById;
 
 @Service
 @AllArgsConstructor
@@ -25,15 +29,16 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     private ModelMapper modelMapper;
 
-    // TODO: Error handling
 
     @Override
     public SubmissionDTO createSubmission(Long userId, Long taskId, CreateSubmissionDTO createSubmissionDTO) {
 
         Submission submission = this.modelMapper.map(createSubmissionDTO, Submission.class);
         submission.setSubmissionDate(LocalDateTime.now());
-        submission.setUser(this.userRepository.findById(userId).orElse(null));
-        submission.setTask(this.taskRepository.findById(taskId).orElse(null));
+        User user = findById(this.userRepository, userId);
+        submission.setUser(user);
+        Task task = findById(this.taskRepository, taskId);
+        submission.setTask(task);
 
         this.submissionRepository.saveAndFlush(submission);
 
@@ -55,8 +60,10 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public SubmissionDTO getSubmissionById(Long submissionId) {
 
-        Submission submission = this.submissionRepository.findById(submissionId).orElse(null);
+        Submission submission = findById(this.submissionRepository, submissionId);
+
         SubmissionDTO dto = this.modelMapper.map(submission, SubmissionDTO.class);
+
         dto.setUserId(submission.getUser().getId());
         dto.setTaskId(submission.getTask().getId());
 

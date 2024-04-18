@@ -15,7 +15,7 @@ public interface UserService {
 
     String updateUserInfo(Long userId, UpdateUserDTO updateUserDTO);
 
-    Optional<User> getUserById(Long userId);
+    User getUserById(Long userId);
 
     String assignTask(Long userId, Long taskId);
 
