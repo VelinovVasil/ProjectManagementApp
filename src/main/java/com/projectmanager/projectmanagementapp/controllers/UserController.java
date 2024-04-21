@@ -11,17 +11,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<UserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        UserDTO user = this.userService.createUser(createUserDTO);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
-    }
+//    @PostMapping("/")
+//    public ResponseEntity<UserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
+//        UserDTO user = this.userService.createUser(createUserDTO);
+//        return new ResponseEntity<>(user, HttpStatus.CREATED);
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
@@ -35,7 +35,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return new ResponseEntity<>(this.userService.getUserById(id).orElse(null), HttpStatus.OK);
+        return new ResponseEntity<>(this.userService.getUserById(id), HttpStatus.OK);
     }
 
     //assign/1?taskId=1
@@ -44,7 +44,7 @@ public class UserController {
         return new ResponseEntity<>(this.userService.assignTask(userId, taskId), HttpStatus.OK);
     }
 
-    @PutMapping("/unassign/{userId}}")
+    @PutMapping("/unassign/{userId}")
     public ResponseEntity<String> unassignTask(@PathVariable Long userId, @RequestParam Long taskId) {
         return new ResponseEntity<>(this.userService.unassignTask(userId, taskId), HttpStatus.OK);
     }
